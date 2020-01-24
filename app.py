@@ -40,11 +40,11 @@ if st.checkbox('Show dataframe'):
 
 
 
-option = st.sidebar.selectbox(
-    'Which number do you like best?',
-     df['first column'])
+#option = st.sidebar.selectbox(
+#    'Which number do you like best?',
+#     df['first column'])
 
-'You selected:', option
+#'You selected:', option
 
 # Add items to sidebar:  st.sidebar.[element_name]()
 # st.sidebar.markdown(), st.sidebar.slider(), st.sidebar.linechart()
