@@ -32,11 +32,11 @@ if st.checkbox('Show dataframe'):
     st.line_chart(chart_data)
     
     
-option = st.selectbox(
-    'Which number do you like best?',
-     df['first column'])
+# option = st.selectbox(
+#     'Which number do you like best?',
+#      df['first column'])
 
-'You selected: ', option
+# 'You selected: ', option
 
 
 
@@ -45,3 +45,8 @@ option = st.sidebar.selectbox(
      df['first column'])
 
 'You selected:', option
+
+# Add items to sidebar:  st.sidebar.[element_name]()
+# st.sidebar.markdown(), st.sidebar.slider(), st.sidebar.linechart()
+
+# Show progress of a lengthy action:  st.progress()
