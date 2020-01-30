@@ -97,7 +97,8 @@ def main():
     import pandas as pd
 
     # Load data frame of course information
-    file_name = '/home/jon/PycharmProjects/jon-insight-project/jon_insight_project/features/all_courses_database_processed.plk'
+    #file_name = '/home/jon/PycharmProjects/jon-insight-project/jon_insight_project/features/all_courses_database_processed.plk'
+    file_name = 'all_courses_database_processed.plk'
     df = pd.read_pickle(file_name)
 
     # Obtain user preferences
