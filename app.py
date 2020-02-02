@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+
+
 st.title('LocalRoute')
 
 
@@ -92,39 +94,39 @@ def rank_courses(df, prefs):
 
 ###############################################################
 
-# Hello
-def main():
-    import pandas as pd
 
-    # Load data frame of course information
-    file_name = 'all_courses_database_processed.plk'
-    df = pd.read_pickle(file_name)
+# def main():
+import pandas as pd
 
-    # Obtain user preferences
-    user_prefs = get_user_prefs()
+# Load data frame of course information
+file_name = 'all_courses_database_processed.plk'
+df = pd.read_pickle(file_name)
 
-    visited_courses = []
+# Obtain user preferences
+user_prefs = get_user_prefs()
 
-    for i in range(user_prefs['n_destinations']):
+visited_courses = []
 
-        df_nearby = find_nearby_courses(df, user_prefs['starting_location'], user_prefs['max_travel_hours'])
+for i in range(user_prefs['n_destinations']):
 
-        # plot_courses_map(df_nearby)
+    df_nearby = find_nearby_courses(df, user_prefs['starting_location'], user_prefs['max_travel_hours'])
 
-        df_nearby_ranked = rank_courses(df_nearby, user_prefs)
+    # plot_courses_map(df_nearby)
 
-        # Check if recommendation is already in visited
-        while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
-            df_nearby_ranked = df_nearby_ranked.iloc[1:]
+    df_nearby_ranked = rank_courses(df_nearby, user_prefs)
 
-        visited_courses.append(df_nearby_ranked.iloc[0, :]['dgcr_id'])
+    # Check if recommendation is already in visited
+    while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
+        df_nearby_ranked = df_nearby_ranked.iloc[1:]
 
-        print('Finished one loop.')
+    visited_courses.append(df_nearby_ranked.iloc[0, :]['dgcr_id'])
 
-        print(visited_courses)
+    print('Finished one loop.')
 
-    return
+    print(visited_courses)
+
+return
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
