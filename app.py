@@ -134,7 +134,7 @@ def main():
 
     _max_width_()
 
-    file_name 'all_courses_database_processed.plk'
+    file_name ='all_courses_database_processed.plk'
     df = pd.read_pickle(file_name)
 
     st.title('LocalRoute')
