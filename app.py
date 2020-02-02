@@ -134,7 +134,7 @@ def main():
 
     _max_width_()
 
-    file_name = '/home/jon/PycharmProjects/jon-insight-project/jon_insight_project/features/all_courses_database_processed.plk'
+    file_name 'all_courses_database_processed.plk'
     df = pd.read_pickle(file_name)
 
     st.title('LocalRoute')
