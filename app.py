@@ -125,8 +125,8 @@ for i in range(user_prefs['n_destinations']):
 
     print(visited_courses)
 
-    return
 
+#return
 
 # if __name__ == '__main__':
 #     main()
