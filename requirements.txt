@@ -1,3 +1,6 @@
 streamlit
 geopy
 pandas
+matplotlib
+geopandas
+shapely
