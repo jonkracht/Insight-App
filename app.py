@@ -157,6 +157,8 @@ def main():
         # Display results
         st.write(100*'\n')
         st.header('LocalRoute:')
+
+        cols_to_display = ['name', 'locality', 'region', 'holes', 'length', 'difficulty', 'rating']
         for entry in visited_courses:
             st.table(df[df['dgcr_id'] == entry])
 
