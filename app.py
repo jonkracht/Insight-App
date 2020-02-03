@@ -113,8 +113,8 @@ def rank_courses(df, prefs):
     return df.sort_values('rating', ascending= False)
 
 
-def find_next_course(df, user_prefs, visited_courses):
-    df_nearby = find_nearby_courses(df, user_prefs['starting_location'], user_prefs['max_travel_hours'])
+def find_next_course(df, user_prefs, visited_courses, current_location):
+    df_nearby = find_nearby_courses(df, current_location, user_prefs['max_travel_hours'])
 
     # plot_courses_map(df_nearby)
 
@@ -132,6 +132,7 @@ def find_next_course(df, user_prefs, visited_courses):
 
 def main():
 
+    # Forces app to full width
     _max_width_()
 
     file_name ='all_courses_database_processed.plk'
@@ -147,11 +148,11 @@ def main():
 
     if user_prefs['starting_location'] != '' and user_prefs['max_travel_hours'] != '' and  user_prefs['n_destinations'] != '':
 
-        current_location = user_prefs['starting_location']
+        location = user_prefs['starting_location']
 
         with st.spinner('**Computing optimal route**'):
             for i in range(int(user_prefs['n_destinations'])):
-                visited_courses.append(find_next_course(df, user_prefs, visited_courses))
+                visited_courses.append(find_next_course(df, user_prefs, visited_courses, location))
 
         # Display results
         st.write(100*'\n')
