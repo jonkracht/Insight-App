@@ -90,11 +90,11 @@ def get_user_prefs():
     """Query user for their preferences and return results in a dictionary."""
 
     st.subheader('Enter some parameters of your trip.')
-    #st.write('\n')
+    st.write('\n')
 
     prefs = {}
 
-    st.write('Required:')
+    st.subheader('Required information:')
 
     prefs['starting_location'] = st.text_input("ZIP code of starting location:")
     prefs['max_travel_hours'] = st.selectbox('Maximum drive time between courses [hours]:', ['' ,0.5, 1.0, 1.5, 2.0, 2.5, 3.0])
@@ -102,25 +102,27 @@ def get_user_prefs():
 
 
 
-    st.subheader('Optional:')
+    st.subheader('Optional information:')
 
-    prefs['hills'] = st.selectbox('Hills:', ['No preference', '0', '1', '2'])
-    prefs['woods'] = st.selectbox('Woods:', ['No preference', '0', '1', '2'])
+    prefs['hills'] = st.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])
+    prefs['woods'] = st.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])
     prefs['difficulty'] = st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])
 
     #prefs['max_length'] = st.text_input("Maximum length course to play:")
     prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
 
 
-    submit = st.button('Continue')
+    #submit = st.button('Continue')
 
-    if submit:
-        if is_user_inputs_populated(prefs):
+    #if submit:
+    if is_user_inputs_populated(prefs):
         #if prefs['starting_location'] != '' and prefs['max_travel_hours'] != '' and  prefs['n_destinations'] != '':
-            return prefs
-        else:
-            st.write('Please input additional information.')
-    return prefs
+        return prefs
+    else:
+        st.write('Please input additional information.')
+
+    return None
+    #return prefs
 
 
 def rank_courses(df, prefs):
@@ -145,7 +147,7 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
 
 def is_user_inputs_populated(user_prefs):
     """Takes a dictionary of user preferences and returns a Boolean whether all inputs are filled."""
-    return all(value != '' for value in user_prefs.values())
+    return all(value != '' or value != 'No preference' for value in user_prefs.values())
 
 
 ###############################################################
@@ -164,15 +166,17 @@ def main():
     st.title('LocalRoute')
 
     st.header('Planning the ideal disc golf road trip')
-    st.write('\n')
+    #st.write('\n')
 
     # Obtain user preferences
     user_prefs = get_user_prefs()
     visited_courses = []
 
-    if is_user_inputs_populated(user_prefs):
+    submit = st.button('Continue')
 
-        st.subheader('\nRouting from ' + geolocator.geocode(user_prefs['starting_location']).address)
+    if is_user_inputs_populated(user_prefs) and submit:
+
+        st.subheader('\n\n\nRouting from ' + geolocator.geocode(user_prefs['starting_location']).address)
 
         location = user_prefs['starting_location']
 
