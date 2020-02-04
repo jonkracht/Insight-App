@@ -36,7 +36,7 @@ def get_latlon_from_zip(zip_code):
 
     from geopy.geocoders import Nominatim
 
-    geolocator = Nominatim(user_agent="specify_your_app_name_here")
+    geolocator = Nominatim(user_agent="LocalRoute")
     result = geolocator.geocode({"postalcode": zip_code})
 
     return (result.latitude, result.longitude)
@@ -158,10 +158,11 @@ def main():
     geolocator = Nominatim(user_agent="geoapiExercises")
 
     # Forces app to full width
-    _max_width_()
+    #_max_width_()
 
     file_name ='all_courses_database_processed.plk'
     df = pd.read_pickle(file_name)
+    df_original = df
 
     st.title('LocalRoute')
 
@@ -180,18 +181,23 @@ def main():
 
         location = user_prefs['starting_location']
 
+        all_destinations = pd.DataFrame()
+
         with st.spinner('**Computing optimal route**'):
             for i in range(int(user_prefs['n_destinations'])):
                 visited_courses.append(find_next_course(df, user_prefs, visited_courses, location))
 
-        # Display results
-        st.write(200*'\n')
-        st.header('Your LocalRoute:')
+                destination = df_original[df_original['dgcr_id'] == visited_courses[-1]]
 
-        cols_to_display = ['name', 'locality', 'region', 'holes', 'length', 'difficulty', 'rating']
+                all_destinations = pd.concat([all_destinations, destination], ignore_index = True)
 
-        for entry in visited_courses:
-            st.dataframe(df[df['dgcr_id'] == entry][cols_to_display])
+                location = list(destination['postal_code'])[0]
+
+
+            st.subheader('\nYour LocalRoute:')
+            cols_to_display = ['name', 'locality', 'region', 'holes', 'length', 'difficulty', 'rating']
+            st.dataframe(all_destinations[cols_to_display])
+
 
     return
 
