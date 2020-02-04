@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import geopy
 
 
 def _max_width_():
@@ -88,19 +89,34 @@ def find_nearby_courses(df, start_zip, max_drive_time):
 def get_user_prefs():
     """Query user for their preferences and return results in a dictionary."""
 
-    st.write('')
     st.subheader('Enter some parameters of your trip.')
+    #st.write('\n')
 
     prefs = {}
+
+    st.write('Required:')
 
     prefs['starting_location'] = st.text_input("ZIP code of starting location:")
     prefs['max_travel_hours'] = st.selectbox('Maximum drive time between courses [hours]:', ['' ,0.5, 1.0, 1.5, 2.0, 2.5, 3.0])
     prefs['n_destinations'] = st.text_input("Number of courses to be played:")
 
+
+
+    st.subheader('Optional:')
+
+    prefs['hills'] = st.selectbox('Hills:', ['No preference', '0', '1', '2'])
+    prefs['woods'] = st.selectbox('Woods:', ['No preference', '0', '1', '2'])
+    prefs['difficulty'] = st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])
+
+    #prefs['max_length'] = st.text_input("Maximum length course to play:")
+    prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
+
+
     submit = st.button('Continue')
 
     if submit:
-        if prefs['starting_location'] != '' and prefs['max_travel_hours'] != '' and  prefs['n_destinations'] != '':
+        if is_user_inputs_populated(prefs):
+        #if prefs['starting_location'] != '' and prefs['max_travel_hours'] != '' and  prefs['n_destinations'] != '':
             return prefs
         else:
             st.write('Please input additional information.')
@@ -127,10 +143,17 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
     return df_nearby_ranked.iloc[0, :]['dgcr_id']
 
 
+def is_user_inputs_populated(user_prefs):
+    """Takes a dictionary of user preferences and returns a Boolean whether all inputs are filled."""
+    return all(value != '' for value in user_prefs.values())
+
 
 ###############################################################
 
 def main():
+
+    from geopy.geocoders import Nominatim
+    geolocator = Nominatim(user_agent="geoapiExercises")
 
     # Forces app to full width
     _max_width_()
@@ -141,12 +164,15 @@ def main():
     st.title('LocalRoute')
 
     st.header('Planning the ideal disc golf road trip')
+    st.write('\n')
 
     # Obtain user preferences
     user_prefs = get_user_prefs()
     visited_courses = []
 
-    if user_prefs['starting_location'] != '' and user_prefs['max_travel_hours'] != '' and  user_prefs['n_destinations'] != '':
+    if is_user_inputs_populated(user_prefs):
+
+        st.subheader('\nRouting from ' + geolocator.geocode(user_prefs['starting_location']).address)
 
         location = user_prefs['starting_location']
 
@@ -155,12 +181,13 @@ def main():
                 visited_courses.append(find_next_course(df, user_prefs, visited_courses, location))
 
         # Display results
-        st.write(100*'\n')
-        st.header('LocalRoute:')
+        st.write(200*'\n')
+        st.header('Your LocalRoute:')
 
         cols_to_display = ['name', 'locality', 'region', 'holes', 'length', 'difficulty', 'rating']
+
         for entry in visited_courses:
-            st.table(df[df['dgcr_id'] == entry])
+            st.dataframe(df[df['dgcr_id'] == entry][cols_to_display])
 
     return
 
