@@ -5,7 +5,11 @@ import geopy
 
 
 def _max_width_():
-    """Decrease left margin of the app; from https://discuss.streamlit.io/t/custom-render-widths/81/8"""
+    """
+    Increase Streamlit app width to fullscreen.
+
+    Fom https://discuss.streamlit.io/t/custom-render-widths/81/8
+    """
 
     max_width_str = f"max-width: 2000px;"
     st.markdown(
@@ -21,7 +25,11 @@ def _max_width_():
 
 
 def get_driving_time(place_1, place_2, speed = 40):
-    """Compute travel time between two points specified by their longitude and latitude."""
+    """
+    Compute travel time between two points specified by their longitude and latitude.
+
+    Returns time in hours.
+    """
 
     from geopy.distance import geodesic
 
@@ -32,7 +40,10 @@ def get_driving_time(place_1, place_2, speed = 40):
 
 
 def get_latlon_from_zip(zip_code):
-    """Determine latitude and longitude for a zip code."""
+    """
+    Determine latitude and longitude for a given zip code.
+
+    """
 
     from geopy.geocoders import Nominatim
 
@@ -43,7 +54,10 @@ def get_latlon_from_zip(zip_code):
 
 
 def plot_courses_map(df):
-    """Function to plot map with course locations."""
+    """
+    Function to plot a map where locations are determined by the input dataframe df.
+    """
+
     import matplotlib.pyplot as plt
     import geopandas as gpd
     from shapely.geometry import Point, Polygon
@@ -126,9 +140,16 @@ def get_user_prefs():
 
 
 def rank_courses(df, prefs):
-    """Pick a course for the user to travel to based on their preferences."""
+    """
+    Return the input dataframe ranked according to user preferences.
 
-    return df.sort_values('rating', ascending= False)
+    """
+
+    # Naive ranking - rank soley by course rating
+    #return df.sort_values('rating', ascending= False)
+
+
+    return
 
 
 def find_next_course(df, user_prefs, visited_courses, current_location):
@@ -155,7 +176,7 @@ def is_user_inputs_populated(user_prefs):
 def main():
 
     from geopy.geocoders import Nominatim
-    geolocator = Nominatim(user_agent="geoapiExercises")
+    geolocator = Nominatim(user_agent="geoapiExercises", country_bias='US')
 
     # Forces app to full width
     #_max_width_()
