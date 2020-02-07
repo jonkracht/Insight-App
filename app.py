@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import geopy
+import matplotlib.pyplot as plt
 
 from similarity import rank_courses, convert_df, convert_prefs
 
@@ -54,36 +55,36 @@ def get_latlon_from_zip(zip_code):
     return (result.latitude, result.longitude)
 
 
-def plot_courses_map(df):
-    """
-    Function to plot a map where locations are determined by the input dataframe df.
-    """
-
-    import matplotlib.pyplot as plt
-    import geopandas as gpd
-    from shapely.geometry import Point, Polygon
-
-    map_file = '/home/jon/PycharmProjects/jon-insight-project/data/external/cb_2018_us_nation_20m/cb_2018_us_nation_20m.shp'
-
-    crs = {'init': 'eosg:4326'}
-
-    street_map = gpd.read_file(map_file)
-
-    geometry = [Point(xy) for xy in zip(df['longitude'], df['latitude'])]
-
-    geo_df = gpd.GeoDataFrame(df, crs=crs, geometry=geometry)
-
-    geo_df.head()
-
-    fig, ax = plt.subplots(figsize=(15, 15))
-    street_map.plot(ax=ax, alpha=0.4, color='grey')
-    geo_df.plot(ax=ax, markersize=20, color='green', marker='o', alpha=0.4)
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
-    # ax.set_title('Disc golf courses in the US')
-    plt.show()
-
-    return
+# def plot_courses_map(df):
+#     """
+#     Function to plot a map where locations are determined by the input dataframe df.
+#     """
+#
+#     import matplotlib.pyplot as plt
+#     import geopandas as gpd
+#     from shapely.geometry import Point, Polygon
+#
+#     map_file = '/home/jon/PycharmProjects/jon-insight-project/data/external/cb_2018_us_nation_20m/cb_2018_us_nation_20m.shp'
+#
+#     crs = {'init': 'eosg:4326'}
+#
+#     street_map = gpd.read_file(map_file)
+#
+#     geometry = [Point(xy) for xy in zip(df['longitude'], df['latitude'])]
+#
+#     geo_df = gpd.GeoDataFrame(df, crs=crs, geometry=geometry)
+#
+#     geo_df.head()
+#
+#     fig, ax = plt.subplots(figsize=(15, 15))
+#     street_map.plot(ax=ax, alpha=0.4, color='grey')
+#     geo_df.plot(ax=ax, markersize=20, color='green', marker='o', alpha=0.4)
+#     ax.set_xlabel('Longitude')
+#     ax.set_ylabel('Latitude')
+#     # ax.set_title('Disc golf courses in the US')
+#     plt.show()
+#
+#     return
 
 
 def find_nearby_courses(df, start_zip, max_drive_time):
@@ -124,15 +125,17 @@ def get_user_prefs():
 
 
 
-    st.subheader('Optional information:')
+    #st.subheader('Optional information:')
+    if st.checkbox('Show optional parameters'):
 
-    hill_map = {'No preference': 'No preference', 'Mostly Flat': 0, 'Moderately Hilly': 1, 'Very Hilly': 2}
-    wood_map = {'No preference': 'No preference', 'Lightly Wooded': 0, 'Moderately Wooded': 1, 'Heavily Wooded': 2}
-    difficulty_map = {'No preference': 'No preference', 'Easy': 0, 'Moderate': 1, 'Difficult': 2}
+        hill_map = {'No preference': 'No preference', 'Mostly Flat': 0, 'Moderately Hilly': 1, 'Very Hilly': 2}
+        wood_map = {'No preference': 'No preference', 'Lightly Wooded': 0, 'Moderately Wooded': 1, 'Heavily Wooded': 2}
+        difficulty_map = {'No preference': 'No preference', 'Easy': 0, 'Moderate': 1, 'Difficult': 2}
 
-    prefs['hills'] = hill_map[st.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])]
-    prefs['woods'] = wood_map[st.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])]
-    prefs['difficulty'] = difficulty_map[st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])]
+
+        prefs['hills'] = hill_map[st.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])]
+        prefs['woods'] = wood_map[st.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])]
+        prefs['difficulty'] = difficulty_map[st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])]
 
     #prefs['max_length'] = st.text_input("Maximum length course to play:")
     #prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
@@ -191,11 +194,6 @@ def main():
 
     from geopy.geocoders import Nominatim
     geolocator = Nominatim(user_agent="LocalRoute")
-    #, country_codes='US')
-    #geolocator = Nominatim.geocode(country_codes='US')
-    #geolocator = Nominatim(user_agent="LocalRoute",  country_bias='US')
-    #                       country_codes='US')
-    #
 
     # Forces app to full width
     #_max_width_()
@@ -240,13 +238,21 @@ def main():
                 current_location = list(destination['postal_code'])[0]
                 #st.write(current_location)
 
-                st.dataframe(destination[cols_to_display])
+                #st.dataframe(destination[cols_to_display])
 
 
 
             st.subheader('\nYour LocalRoute:')
 
-            st.dataframe(all_destinations[cols_to_display])
+            # Create a map of the filtered data)
+            #st.write(all_destinations[['latitude', 'longitude']])
+
+            st.map(all_destinations[['latitude', 'longitude']])
+
+
+
+            st.dataframe(all_destinations)
+            #st.dataframe(all_destinations[cols_to_display])
 
 
     return

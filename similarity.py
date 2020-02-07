@@ -54,7 +54,7 @@ def convert_prefs(p):
 
     excluded_columns = {'rating', 'starting_location', 'n_destinations', 'max_travel_hours'}
 
-    p_new = {'rating': 10}
+    p_new = {'rating': 2}
 
 
     #p_new.update({k:v for k, v in p.items() if v != 'No preference' and k not in excluded_columns})
