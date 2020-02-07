@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import geopy
 
+from similarity import rank_courses, convert_df, convert_prefs
 
 def _max_width_():
     """
@@ -26,7 +27,7 @@ def _max_width_():
 
 def get_driving_time(place_1, place_2, speed = 40):
     """
-    Compute travel time between two points specified by their longitude and latitude.
+    Compute travel time between two place specified by their longitude/latitude pairs.
 
     Returns time in hours.
     """
@@ -88,6 +89,9 @@ def plot_courses_map(df):
 def find_nearby_courses(df, start_zip, max_drive_time):
     """Update dataframe of courses to only those within a certain distance of starting location."""
 
+    #st.write('Start of find_nearby_courses')
+    #st.write(df)
+
     # Cast latitudes/longitudes as tuples
     latlong = list(zip(df['latitude'], df['longitude']))
 
@@ -95,7 +99,11 @@ def find_nearby_courses(df, start_zip, max_drive_time):
 
     df['time'] = [get_driving_time(starting_zip, r) for r in latlong]
 
+    #st.write(df)
+
     df_close = df[df['time'] <= max_drive_time]
+
+    #st.write(df_close)
 
     return df_close
 
@@ -118,12 +126,16 @@ def get_user_prefs():
 
     st.subheader('Optional information:')
 
-    prefs['hills'] = st.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])
-    prefs['woods'] = st.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])
-    prefs['difficulty'] = st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])
+    hill_map = {'No preference': 'No preference', 'Mostly Flat': 0, 'Moderately Hilly': 1, 'Very Hilly': 2}
+    wood_map = {'No preference': 'No preference', 'Lightly Wooded': 0, 'Moderately Wooded': 1, 'Heavily Wooded': 2}
+    difficulty_map = {'No preference': 'No preference', 'Easy': 0, 'Moderate': 1, 'Difficult': 2}
+
+    prefs['hills'] = hill_map[st.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])]
+    prefs['woods'] = wood_map[st.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])]
+    prefs['difficulty'] = difficulty_map[st.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])]
 
     #prefs['max_length'] = st.text_input("Maximum length course to play:")
-    prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
+    #prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
 
 
     #submit = st.button('Continue')
@@ -139,27 +151,29 @@ def get_user_prefs():
     #return prefs
 
 
-def rank_courses(df, prefs):
-    """
-    Return the input dataframe ranked according to user preferences.
-
-    """
-
-    # Naive ranking - rank soley by course rating
-    #return df.sort_values('rating', ascending= False)
-
-
-    return
-
-
 def find_next_course(df, user_prefs, visited_courses, current_location):
+
+    #st.write('Start of find_next_course')
+    #st.write(df)
+
     df_nearby = find_nearby_courses(df, current_location, user_prefs['max_travel_hours'])
+
+
+
+    #st.write('Courses within driving range:')
+    #st.write(df_nearby)
 
     # plot_courses_map(df_nearby)
 
+    #st.write('Before ranking')
+    #st.write(df)
+
     df_nearby_ranked = rank_courses(df_nearby, user_prefs)
 
-    # Check if recommendation is already in visited
+    #st.write('Ranked courses within driving range:')
+    #st.write(df_nearby)
+
+    # Check if recommendation is already among those visited
     while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
         df_nearby_ranked = df_nearby_ranked.iloc[1:]
 
@@ -176,7 +190,12 @@ def is_user_inputs_populated(user_prefs):
 def main():
 
     from geopy.geocoders import Nominatim
-    geolocator = Nominatim(user_agent="geoapiExercises", country_bias='US')
+    geolocator = Nominatim(user_agent="LocalRoute")
+    #, country_codes='US')
+    #geolocator = Nominatim.geocode(country_codes='US')
+    #geolocator = Nominatim(user_agent="LocalRoute",  country_bias='US')
+    #                       country_codes='US')
+    #
 
     # Forces app to full width
     #_max_width_()
@@ -198,25 +217,35 @@ def main():
 
     if is_user_inputs_populated(user_prefs) and submit:
 
-        st.subheader('\n\n\nRouting from ' + geolocator.geocode(user_prefs['starting_location']).address)
+        st.subheader('\n\n\nRouting from ' + geolocator.geocode(user_prefs['starting_location'], country_codes='US').address)
 
-        location = user_prefs['starting_location']
+        current_location = user_prefs['starting_location']
 
         all_destinations = pd.DataFrame()
 
+        cols_to_display = ['name', 'locality', 'region', 'holes', 'difficulty', 'rating']
+
         with st.spinner('**Computing optimal route**'):
             for i in range(int(user_prefs['n_destinations'])):
-                visited_courses.append(find_next_course(df, user_prefs, visited_courses, location))
+
+                #st.write('Start of loop.')
+                #st.write(current_location)
+
+                visited_courses.append(find_next_course(df, user_prefs, visited_courses, current_location))
 
                 destination = df_original[df_original['dgcr_id'] == visited_courses[-1]]
 
                 all_destinations = pd.concat([all_destinations, destination], ignore_index = True)
 
-                location = list(destination['postal_code'])[0]
+                current_location = list(destination['postal_code'])[0]
+                #st.write(current_location)
+
+                st.dataframe(destination[cols_to_display])
+
 
 
             st.subheader('\nYour LocalRoute:')
-            cols_to_display = ['name', 'locality', 'region', 'holes', 'length', 'difficulty', 'rating']
+
             st.dataframe(all_destinations[cols_to_display])
 
 
