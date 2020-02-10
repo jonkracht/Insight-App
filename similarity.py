@@ -16,8 +16,10 @@ def rank_courses(df, Q):
     # st.dataframe(df)
     # st.write(Q)
 
-    df['recommendation'] = cosine_similarity(df.iloc[:, 1:], [list(Q.values())], dense_output=True)
+    df['rating'] = df['rating'].divide(2.5)
 
+    df['recommendation'] = cosine_similarity(df.iloc[:, 1:], [list(Q.values())], dense_output=True)
+    #st.write(df)
     return df
 
 
@@ -54,10 +56,8 @@ def convert_prefs(p):
 
     excluded_columns = {'rating', 'starting_location', 'n_destinations', 'max_travel_hours'}
 
-    p_new = {'rating': 2}
+    p_new = {'rating': 2.00}
 
-
-    #p_new.update({k:v for k, v in p.items() if v != 'No preference' and k not in excluded_columns})
     for key, value in p.items():
 
         # Remove columns for which the user has no preference

@@ -143,7 +143,7 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
     df_nearby_ranked = rank_courses(df_nearby, user_prefs)
 
     #st.write('Ranked courses within driving range:')
-    #st.write(df_nearby)
+    st.write(df_nearby_ranked)
 
     # Check if recommendation is already among those visited
     while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
@@ -210,7 +210,7 @@ def main():
                 #st.dataframe(destination[cols_to_display])
 
 
-            st.success('\nYour LocalRoute:')
+            st.subheader('\nYour LocalRoute:')
 
             # Create a map of the filtered data)
             #st.write(all_destinations[['latitude', 'longitude']])
@@ -219,9 +219,6 @@ def main():
 
             plot_df = all_destinations[['latitude', 'longitude']]
 
-
-
-
             st.deck_gl_chart(
                 viewport = {
                     'latitude': plot_df['latitude'].mean(),
@@ -229,35 +226,36 @@ def main():
                     'zoom': 8,
                     'angle': 0
                 },
-                layers = [
-                           # {'type': 'ScatterplotLayer',
-                           # 'data':
-                           # 'radiusScale': 500,
-                           # 'radiusMinPixels': 100,
-                           # 'getFillColor': [248, 24, 148],
-                           # 'opacity': 0
-                           # },
-                        {'type': 'ScatterplotLayer',
+                layers = [ # STARTING LOCATION
+                           {'type': 'ScatterplotLayer',
+                           'data': pd.DataFrame(get_latlon_from_zip(user_prefs['starting_location']), index = ['latitude', 'longitude']).T,
+                           'radiusScale': 10,
+                           'radiusMinPixels': 10,
+                           'getFillColor': [238, 0, 0],
+                           'extruded': True,
+                           'pickable': True,
+                            },
+                        { # VISITED COURSES
+                            'type': 'ScatterplotLayer',
                            'data': plot_df,
-                           'radiusScale': 50,
-                           'radiusMinPixels': 5,
-                           'getFillColor': [26, 150, 103],
-                           'opacity': 0.25,
+                           'radiusScale': 20,
+                           'radiusMinPixels': 20,
+                           'getFillColor': [113, 179, 255],
                            'extruded': True
                             },
-                            {'type': 'ScatterplotLayer',
+                            { # OTHER COURSES
+                            'type': 'ScatterplotLayer',
                             'data': df,
                             'radiusScale': 5,
                             'radiusMinPixels': 5,
-                            'getFillColor': [255, 0, 0],
-                            'opacity': 0.05,
+                            'getFillColor': [112, 131, 203],
+                            'opacity': .1,
                             'extruded': True
                             }
                           ])
 
+            #st.write('Map key:  Pink - Starting location; Green - LocalRoute destinations; Blue - Other courses')
             st.table(all_destinations[cols_to_display], )
-            #st.dataframe(all_destinations[cols_to_display])
-
 
     return
 
