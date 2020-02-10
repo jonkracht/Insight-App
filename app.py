@@ -143,7 +143,7 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
     df_nearby_ranked = rank_courses(df_nearby, user_prefs)
 
     #st.write('Ranked courses within driving range:')
-    st.write(df_nearby_ranked)
+    #st.write(df_nearby_ranked)
 
     # Check if recommendation is already among those visited
     while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
