@@ -104,46 +104,37 @@ def get_user_prefs():
         wood_map = {'No preference': 'No preference', 'Lightly Wooded': 0, 'Moderately Wooded': 1, 'Heavily Wooded': 2}
         difficulty_map = {'No preference': 'No preference', 'Easy': 0, 'Moderate': 1, 'Difficult': 2}
 
-
+        st.sidebar.markdown('Optional parameters:')
         prefs['hills'] = hill_map[st.sidebar.selectbox('Hills:', ['No preference', 'Mostly Flat', 'Moderately Hilly', 'Very Hilly'])]
         prefs['woods'] = wood_map[st.sidebar.selectbox('Woods:', ['No preference', 'Lightly Wooded', 'Moderately Wooded', 'Heavily Wooded'])]
-        prefs['difficulty'] = difficulty_map[st.sidebar.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])]
 
-    #prefs['max_length'] = st.text_input("Maximum length course to play:")
-    #prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
+
+        #prefs['difficulty'] = difficulty_map[st.sidebar.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])]
+
+        prefs['difficulty'] = 'No preference'
+        diff = st.sidebar.selectbox('Difficulty:', ['No preference', 'Easy', 'Moderate', 'Difficult'])
+
+
+        #prefs['max_length'] = st.text_input("Maximum length course to play:")
+        #prefs['max_length'] = st.selectbox("Maximum length course to play:", ['No preference', '3000', '6000', '9000'])
 
 
     #submit = st.button('Continue')
 
     #if submit:
     if is_user_inputs_populated(prefs):
-        #if prefs['starting_location'] != '' and prefs['max_travel_hours'] != '' and  prefs['n_destinations'] != '':
         return prefs
     else:
         st.write('Please input additional information.')
 
     return None
-    #return prefs
 
 
 def find_next_course(df, user_prefs, visited_courses, current_location):
 
-    # st.write('Start of find_next_course')
-    #
-    #
-    # st.write(df)
-    # st.write(current_location)
-    # st.write(user_prefs['max_travel_hours'])
-
     df_nearby = find_nearby_courses(df, current_location, user_prefs['max_travel_hours'])
 
-    # st.write('After nearby')
-    # st.write(df_nearby)
-
     df_nearby_ranked = rank_courses(df_nearby, user_prefs)
-
-    #st.write('Ranked courses within driving range:')
-    #st.write(df_nearby_ranked)
 
     # Check if recommendation is already among those visited
     while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
@@ -195,7 +186,14 @@ def main():
         with st.spinner('**Computing route**'):
             for i in range(int(user_prefs['n_destinations'])):
 
-                visited_courses.append(find_next_course(df, user_prefs, visited_courses, current_location))
+                #visited_courses.append(find_next_course(df, user_prefs, visited_courses, current_location))
+
+                try:
+                    visited_courses.append(find_next_course(df, user_prefs, visited_courses, current_location))
+                except:
+                    st.write('Failed to reach sufficient destinations.  Displaying partial route.')
+                    break
+
 
                 destination = df_original[df_original['dgcr_id'] == visited_courses[-1]]
 
@@ -246,8 +244,7 @@ def main():
                             }
                           ])
 
-            #st.write('Map key:  Pink - Starting location; Green - LocalRoute destinations; Blue - Other courses')
-            st.table(all_destinations[cols_to_display], )
+            st.table(all_destinations[cols_to_display])
 
     return
 
