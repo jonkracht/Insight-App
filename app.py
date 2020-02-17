@@ -28,7 +28,7 @@ def _max_width_():
 
 def get_driving_time(place_1, place_2, speed = 40):
     """
-    Compute travel time between two place specified by their longitude/latitude pairs.
+    Compute travel time between two places specified by their longitude/latitude pairs.
 
     Returns time in hours.
     """
@@ -49,7 +49,7 @@ def get_latlon_from_zip(zip_code):
 
     from geopy.geocoders import Nominatim
 
-    geolocator = Nominatim(user_agent="LocalRoute")
+    geolocator = Nominatim(user_agent="LocalRoute", country_bias = 'US')
     result = geolocator.geocode({"postalcode": zip_code})
 
     return (result.latitude, result.longitude)
@@ -59,21 +59,24 @@ def get_latlon_from_zip(zip_code):
 def find_nearby_courses(df, start_zip, max_drive_time):
     """Update dataframe of courses to only those within a certain distance of starting location."""
 
-    #st.write('Start of find_nearby_courses')
-    #st.write(df)
+    # st.write('Start of find_nearby_courses')
+    # st.write(df.sort_values(by='region'))
 
     # Cast latitudes/longitudes as tuples
     latlong = list(zip(df['latitude'], df['longitude']))
 
-    starting_zip = get_latlon_from_zip(start_zip)
+    starting_location = get_latlon_from_zip(start_zip)
 
-    df['time'] = [get_driving_time(starting_zip, r) for r in latlong]
+    # st.write(starting_location)
 
-    #st.write(df)
+    df['time'] = [get_driving_time(starting_location, r) for r in latlong]
+
+    # st.write('After computing time')
+    # st.write(df.sort_values(by = 'region'))
 
     df_close = df[df['time'] <= max_drive_time]
 
-    #st.write(df_close)
+    #st.table(df_close)
 
     return df_close
 
@@ -125,20 +128,17 @@ def get_user_prefs():
 
 def find_next_course(df, user_prefs, visited_courses, current_location):
 
-    #st.write('Start of find_next_course')
-    #st.write(df)
+    # st.write('Start of find_next_course')
+    #
+    #
+    # st.write(df)
+    # st.write(current_location)
+    # st.write(user_prefs['max_travel_hours'])
 
     df_nearby = find_nearby_courses(df, current_location, user_prefs['max_travel_hours'])
 
-
-
-    #st.write('Courses within driving range:')
-    #st.write(df_nearby)
-
-    # plot_courses_map(df_nearby)
-
-    #st.write('Before ranking')
-    #st.write(df)
+    # st.write('After nearby')
+    # st.write(df_nearby)
 
     df_nearby_ranked = rank_courses(df_nearby, user_prefs)
 
@@ -147,7 +147,7 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
 
     # Check if recommendation is already among those visited
     while df_nearby_ranked.iloc[0, :]['dgcr_id'] in visited_courses:
-        df_nearby_ranked = df_nearby_ranked.iloc[1:]
+        df_nearby_ranked = df_nearby_ranked.iloc[1:, :]
 
     return df_nearby_ranked.iloc[0, :]['dgcr_id']
 
@@ -192,11 +192,8 @@ def main():
 
         cols_to_display = ['name', 'locality', 'region', 'holes', 'difficulty', 'rating']
 
-        with st.spinner('**Computing optimal route**'):
+        with st.spinner('**Computing route**'):
             for i in range(int(user_prefs['n_destinations'])):
-
-                #st.write('Start of loop.')
-                #st.write(current_location)
 
                 visited_courses.append(find_next_course(df, user_prefs, visited_courses, current_location))
 
@@ -211,11 +208,6 @@ def main():
 
 
             st.subheader('\nYour LocalRoute:')
-
-            # Create a map of the filtered data)
-            #st.write(all_destinations[['latitude', 'longitude']])
-
-            #st.map(all_destinations[['latitude', 'longitude']])
 
             plot_df = all_destinations[['latitude', 'longitude']]
 
