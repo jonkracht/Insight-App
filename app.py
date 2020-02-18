@@ -30,7 +30,6 @@ def get_driving_time(place_1, place_2, speed = 40):
     """
     Compute travel time between two places specified by their longitude/latitude pairs.
 
-    Returns time in hours.
     """
 
     from geopy.distance import geodesic
@@ -57,10 +56,10 @@ def get_latlon_from_zip(zip_code):
 
 
 def find_nearby_courses(df, start_zip, max_drive_time):
-    """Update dataframe of courses to only those within a certain distance of starting location."""
+    """
+    Update dataframe of courses to only those within a certain distance.
+    """
 
-    # st.write('Start of find_nearby_courses')
-    # st.write(df.sort_values(by='region'))
 
     # Cast latitudes/longitudes as tuples
     latlong = list(zip(df['latitude'], df['longitude']))
@@ -71,12 +70,7 @@ def find_nearby_courses(df, start_zip, max_drive_time):
 
     df['time'] = [get_driving_time(starting_location, r) for r in latlong]
 
-    # st.write('After computing time')
-    # st.write(df.sort_values(by = 'region'))
-
     df_close = df[df['time'] <= max_drive_time]
-
-    #st.table(df_close)
 
     return df_close
 
@@ -131,6 +125,9 @@ def get_user_prefs():
 
 
 def find_next_course(df, user_prefs, visited_courses, current_location):
+    """
+    Determine next course to visit.
+    """
 
     df_nearby = find_nearby_courses(df, current_location, user_prefs['max_travel_hours'])
 
@@ -144,7 +141,9 @@ def find_next_course(df, user_prefs, visited_courses, current_location):
 
 
 def is_user_inputs_populated(user_prefs):
-    """Takes a dictionary of user preferences and returns a Boolean whether all inputs are filled."""
+    """
+    Takes a dictionary of user preferences and returns a Boolean whether all inputs are filled.
+    """
     return all(value != '' or value != 'No preference' for value in user_prefs.values())
 
 
@@ -155,7 +154,7 @@ def main():
     from geopy.geocoders import Nominatim
     geolocator = Nominatim(user_agent="LocalRoute")
 
-    # Forces app to full width
+    # Forces app to full screen width, if desired
     #_max_width_()
 
     file_name ='all_courses_database_processed.plk'
@@ -175,13 +174,12 @@ def main():
 
     if is_user_inputs_populated(user_prefs) and submit:
 
-        st.subheader('\n\n\nRouting from ' + geolocator.geocode(user_prefs['starting_location'], country_codes='US').address)
+        # Print starting location; encounters with accuracy of databased and temporarily removed
+        #st.subheader('\n\n\nRouting from ' + geolocator.geocode(user_prefs['starting_location'], country_codes='US').address)
 
         current_location = user_prefs['starting_location']
 
         all_destinations = pd.DataFrame()
-
-        cols_to_display = ['name', 'locality', 'region', 'holes', 'difficulty', 'rating']
 
         with st.spinner('**Computing route**'):
             for i in range(int(user_prefs['n_destinations'])):
@@ -200,9 +198,7 @@ def main():
                 all_destinations = pd.concat([all_destinations, destination], ignore_index = True)
 
                 current_location = list(destination['postal_code'])[0]
-                #st.write(current_location)
 
-                #st.dataframe(destination[cols_to_display])
 
 
             st.subheader('\nYour LocalRoute:')
@@ -243,6 +239,8 @@ def main():
                             'extruded': True
                             }
                           ])
+
+            cols_to_display = ['name', 'locality', 'region', 'holes', 'rating', 'woods', 'hills']
 
             st.table(all_destinations[cols_to_display])
 

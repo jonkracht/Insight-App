@@ -11,8 +11,6 @@ def rank_courses(df, Q):
     from sklearn.preprocessing import OneHotEncoder
     import streamlit as st
 
-    # st.write('Inside rank_courses')
-    # st.write(df)
 
     Q = convert_prefs(Q)
     df = convert_df(df, Q)
@@ -38,53 +36,24 @@ def rank_courses(df, Q):
 
 
 
-    # Scale rating attribute to scale impact
+    # Scale rating attribute to reduce affect of rating
     df['rating'] = df['rating'].divide(2)
 
-    # st.write(df)
-    # st.write(a)
 
     df['recommendation'] = cosine_similarity(df.iloc[:, 1:], pd.DataFrame(a).transpose(), dense_output=True)
-    #st.table(df.sort_values(by='recommendation', ascending= False))
 
     return df.sort_values(by='recommendation', ascending=False)
-    #return df
 
 
-# def convert_df(df, p):
-#     '''
-#     Original version
-#     Function to recast course database by information in dictionary.
-#
-#     :param df: data frame of full categories; p
-#     :return: A featurized pandas dataframe
-#     '''
-#
-#     df_altered = df[['dgcr_id', 'rating']]
-#
-#     excluded_columns = ['rating', 'starting_location', 'n_destinations', 'max_travel_hours']
-#
-#     for key, value in p.items():
-#         # Remove columns for which the user has no preference
-#         if key not in excluded_columns and value != 'No preference':
-#             df_altered = pd.concat([df_altered, df[key]], axis = 1)
-#             #df_altered = df_altered.assign(key = df[key])
-#
-#     return df_altered
 
 def convert_df(df, p):
     '''
     Implementing one-hot encoding
     Function to recast course database by information in dictionary.
 
-    :param df: data frame of full categories; p
-    :return: A featurized pandas dataframe
     '''
 
     import streamlit as st
-
-    # st.write('inside convert_df')
-    # st.write(df)
 
     df_altered = df[['dgcr_id', 'rating']]
 
@@ -95,11 +64,10 @@ def convert_df(df, p):
         if key not in excluded_columns and value != 'No preference':
             df_altered = pd.concat([df_altered, pd.get_dummies(df[key], prefix=key)], axis=1)
 
+            # Alternate get_dummies scheme:
             # temp = pd.get_dummies(df[key], prefix=key, prefix_sep = '')
             # temp = temp.T.reindex(['0', '1', '2']).T.fillna(0)
             # df_altered = pd.concat([df_altered, temp], axis=1)
-
-        #st.table(df_altered)
 
 
     return df_altered
@@ -107,8 +75,7 @@ def convert_df(df, p):
 
 def convert_prefs(p):
     '''
-    :param p:
-    :return:
+    Refactor user preferences to include only non-trivial ones.
     '''
 
     excluded_columns = {'rating', 'starting_location', 'n_destinations', 'max_travel_hours'}
