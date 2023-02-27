@@ -5,3 +5,5 @@ matplotlib
 geopandas
 shapely
 sklearn
+
+scikit-learn

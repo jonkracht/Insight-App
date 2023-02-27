@@ -48,7 +48,7 @@ def get_latlon_from_zip(zip_code):
 
     from geopy.geocoders import Nominatim
 
-    geolocator = Nominatim(user_agent="LocalRoute", country_bias = 'US')
+    geolocator = Nominatim(user_agent="LocalRoute")
     result = geolocator.geocode({"postalcode": zip_code})
 
     return (result.latitude, result.longitude)
@@ -205,7 +205,9 @@ def main():
 
             plot_df = all_destinations[['latitude', 'longitude']]
 
-            st.deck_gl_chart(
+            # Plotting with deck_gl_chart (deprecated in 2020)
+            _ = """
+            st.deck_gl_chart
                 viewport = {
                     'latitude': plot_df['latitude'].mean(),
                     'longitude': plot_df['longitude'].mean(),
@@ -239,6 +241,37 @@ def main():
                             'extruded': True
                             }
                           ])
+            """
+
+            import pydeck as pdk
+            st.pydeck_chart(pdk.Deck(
+                map_style=None,
+                initial_view_state=pdk.ViewState(
+                    latitude=plot_df['latitude'].mean(),
+                    longitude=plot_df['longitude'].mean(),
+                    #zoom=5,
+                    pitch=50,
+                ),
+                layers=[
+                    pdk.Layer(
+                        'HexagonLayer',
+                        data=plot_df,
+                        get_position='[longitude, latitude]',
+                        radius=500,
+                        elevation_scale=4,
+                        elevation_range=[0, 1000],
+                        pickable=True,
+                        extruded=True,
+                    ),
+                    pdk.Layer(
+                        'ScatterplotLayer',
+                        data=plot_df,
+                        get_position='[longitude, latitude]',
+                        get_color='[200, 30, 0, 160]',
+                        get_radius=500,
+                    ),
+                ],
+            ))
 
             cols_to_display = ['name', 'locality', 'region', 'holes', 'rating', 'woods', 'hills']
 

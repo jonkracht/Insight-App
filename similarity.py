@@ -8,7 +8,11 @@ def rank_courses(df, Q):
     '''
 
     from sklearn.metrics.pairwise import cosine_similarity
-    from sklearn.preprocessing import OneHotEncoder
+    #from scikit-learn.preprocessing import OneHotEncoder
+
+    #from sklearn.metrics.pairwise import cosine_similarity
+    #from sklearn.preprocessing import OneHotEncoder
+
     import streamlit as st
 
 
