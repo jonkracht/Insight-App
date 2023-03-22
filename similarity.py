@@ -7,8 +7,9 @@ def rank_courses(df, Q):
     Return the input dataframe ranked according to preferences.
     '''
 
-    from sklearn.metrics.pairwise import cosine_similarity
+    #from sklearn.metrics.pairwise import cosine_similarity
     #from scikit-learn.preprocessing import OneHotEncoder
+    from scikit-learn.metrics.pairwise import cosine_similarity
 
     #from sklearn.metrics.pairwise import cosine_similarity
     #from sklearn.preprocessing import OneHotEncoder
