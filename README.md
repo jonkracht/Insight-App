@@ -19,6 +19,7 @@ The user can input their preferences for a road trip and the app will compute a 
 * Improve grid display below map (remove numbers, add links, convert woods/hills to words)
 * Exclude short courses
 * Include database scraping code in this repo
+* Proper way to import/call sklearn
 
 ## TODONE
 * Cosine similarity throwing a warning
