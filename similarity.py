@@ -43,9 +43,10 @@ def rank_courses(df, Q):
 
     # Scale course rating attribute to balance its impact on recommendation
     #df.loc[:, 'rating'] = df.rating.apply(lambda x: x / 2)
-    #df.loc[:, 'rating'] = df['rating'].div(2)
+    #df.loc['rating'] = df['rating'].div(2)
     #df['rating'] = df['rating'].apply(lambda x: x/2)
-    df.loc[:, 'rating'] *= 0.5
+    #df.loc[:, 'rating'] *= 0.5
+    df.loc[:, 'rating'] = df.loc[:, 'rating'].div(2)
 
     df['recommendation'] = cosine_similarity(df.iloc[:, 1:], pd.DataFrame(a).transpose(), dense_output=True)
 

@@ -277,7 +277,7 @@ def main():
 
             st.table(all_destinations[cols_to_display])
 
-            st.write('Using data from [DG Course Review](https://www.dgcoursereview.com/).')
+            st.write('Powered by [DG Course Review](https://www.dgcoursereview.com/).')
 
     return
 
